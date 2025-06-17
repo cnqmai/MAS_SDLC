@@ -1,36 +1,57 @@
-# --- START OF FILE run_phase_2.py ---
-
+# main.py
 import sys
 import os
 import logging
 from dotenv import load_dotenv
-from crewai import Crew, Process
 
-# 1. CẤU HÌNH BAN ĐẦU
+# Cấu hình logging và tải biến môi trường
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logging.info("Đang tải biến môi trường từ file .env...")
 load_dotenv()
+
+# Kiểm tra API key trước khi chạy
 if not os.getenv("GEMINI_API_KEY"):
-    logging.error("Lỗi: Biến môi trường GEMINI_API_KEY chưa được thiết lập.")
+    logging.error("Lỗi: Biến môi trường GEMINI_API_KEY chưa được thiết lập trong file .env")
     sys.exit("Vui lòng cung cấp khóa API Gemini trong file .env")
+else:
+    logging.info("Đã tải API Key của Gemini thành công.")
 
-# 2. IMPORT CÁC THÀNH PHẦN CỦA CREW
-from agents.requirement_agent import get_requirement_agent
-# from agents.common_agent import get_researcher_agent # Agent hỗ trợ
-from memory.shared_memory import shared_memory
+# Import các thành phần của CrewAI và các hàm tạo của chúng ta
+from crewai import Crew, Process
+from agents.input_agent import create_input_agent
+from tasks.phase_0.input_tasks import run_input_collection
 
-# Import tất cả các nhà máy tạo Task cho Giai đoạn 2
-from tasks.requirement_tasks import (
-    create_scope_tasks,
-    create_brd_tasks,
-    create_presentation_tasks,
-    create_srs_tasks,   
-    create_nfr_tasks,
-    create_security_tasks,
-    create_usecase_tasks,
-    create_rtm_tasks,
-    create_impact_analysis_tasks,
-    create_sla_tasks,
-    create_training_tasks,
-    create_checklist_tasks
+def main():
+    """Hàm chính để khởi tạo và chạy Crew."""
+    print("\n--- Bắt đầu chương trình thu thập yêu cầu dự án phần mềm ---")
+
+    # 1. Tạo Agent
+    input_agent = create_input_agent()
+
+    # 2. Tạo Task
+    input_task = run_input_collection()
+
+    # 3. Tạo và cấu hình Crew
+    crew = Crew(
+        agents=[input_agent],
+        tasks=[input_task],
+        process=Process.sequential,
+        verbose=2  # Bật chế độ verbose để xem chi tiết quá trình làm việc của agent
     )
+
+    # 4. Bắt đầu thực thi!
+    # CrewAI sẽ bắt đầu task, và vì có `human_input=True`, nó sẽ dừng lại để chờ bạn trả lời
+    print("\n🚀 Crew đang bắt đầu... Hãy chuẩn bị trả lời các câu hỏi từ Agent.")
+    print("------------------------------------------------------------------")
+    
+    result = crew.kickoff()
+
+    # 5. In và lưu kết quả cuối cùng
+    print("\n------------------------------------------------------------------")
+    print("🏆 Cuộc phỏng vấn đã kết thúc. Dưới đây là báo cáo tổng hợp:")
+    print(result)
+    
+    # Lưu báo cáo ra file
+    save_output("requirement_report.md", result)
+
+if __name__ == "__main__":
+    main()

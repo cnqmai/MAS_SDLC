@@ -1,2 +1,83 @@
+# Python bytecode files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.env
+.venv
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Project specific
+*.log
+*.sqlite3
+.env
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Local application data
+instance/
+.webassets-cache
+
+# Documentation
+/site
+
+# Runtime data
+.coverage
+htmlcov/
+
+# Generated output files
+output/*
+!output/.gitkeep
+
+# API keys and credentials
+api_keys.json
+credentials.json
+*_credentials.*
+
+# Cache files
+.cache/
+.__cache__/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
 venv/
 .env

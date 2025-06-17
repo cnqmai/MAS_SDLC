@@ -4,3 +4,7 @@ openpyxl
 PyYAML
 jinja2
 loguru
+crewai==0.28.8
+crewai-tools==0.1.7
+langchain_google_genai==0.0.1
+python-dotenv

@@ -1,75 +1,44 @@
-import json
-import os
-
+# memory/shared_memory.py
 
 class SharedMemory:
+    """
+    Quản lý bộ nhớ chia sẻ giữa các agent và các phase của dự án.
+    """
     _instance = None
+    _data = {}
 
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super(SharedMemory, cls).__new__(cls, *args, **kwargs)
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(SharedMemory, cls).__new__(cls)
         return cls._instance
 
-    def __init__(self):
-        if not hasattr(self, "memory"):  # Prevent re-initialization
-            self.memory = {}
+    def set(self, phase: str, key: str, value: any):
+        """
+        Lưu trữ một giá trị vào bộ nhớ chia sẻ dưới một phase và key cụ thể.
+        """
+        if phase not in self._data:
+            self._data[phase] = {}
+        self._data[phase][key] = value
+        print(f"SharedMemory: Đã lưu '{key}' vào phase '{phase}'.")
 
-    def set(self, phase, key, value, *, verbose=False):
-        if phase not in self.memory:
-            self.memory[phase] = {}
-        self.memory[phase][key] = value
-        if verbose:
-            print(f"[SharedMemory] SET {phase}.{key} = {value}")
+    def get(self, phase: str, key: str):
+        """
+        Lấy một giá trị từ bộ nhớ chia sẻ dựa trên phase và key.
+        """
+        return self._data.get(phase, {}).get(key)
 
-    def get(self, phase, key, *, default=None):
-        return self.memory.get(phase, {}).get(key, default)
+    def get_phase_data(self, phase: str):
+        """
+        Lấy tất cả dữ liệu của một phase cụ thể.
+        """
+        return self._data.get(phase, {})
 
-    def has(self, phase, key):
-        return key in self.memory.get(phase, {})
+    def clear(self):
+        """
+        Xóa toàn bộ bộ nhớ chia sẻ.
+        """
+        self._data = {}
+        print("SharedMemory: Đã xóa toàn bộ bộ nhớ.")
 
-    def get_phase(self, phase):
-        return self.memory.get(phase, {})
-
-    def delete_phase(self, phase):
-        if phase in self.memory:
-            del self.memory[phase]
-
-    def merge_phases(self, source_phase, target_phase):
-        """Merge data from one phase into another."""
-        if source_phase in self.memory:
-            if target_phase not in self.memory:
-                self.memory[target_phase] = {}
-            self.memory[target_phase].update(self.memory[source_phase])
-
-    def reset(self):
-        """Clear all shared memory"""
-        self.memory.clear()
-        print("[SharedMemory] Memory reset.")
-
-    def to_dict(self):
-        return self.memory
-
-    def load_from_dict(self, data: dict):
-        self.memory = data.copy()
-
-    def save_to_file(self, path="shared_memory_state.json"):
-        try:
-            with open(path, "w", encoding="utf-8") as f:
-                json.dump(self.memory, f, indent=4)
-            print(f"[SharedMemory] Saved to {path}")
-        except Exception as e:
-            print(f"[SharedMemory] Error saving: {e}")
-
-    def load_from_file(self, path="shared_memory_state.json"):
-        if os.path.exists(path):
-            try:
-                with open(path, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    self.load_from_dict(data)
-                print(f"[SharedMemory] Loaded from {path}")
-            except Exception as e:
-                print(f"[SharedMemory] Error loading: {e}")
-
-
-# Singleton instance
+# Khởi tạo instance duy nhất
 shared_memory = SharedMemory()
