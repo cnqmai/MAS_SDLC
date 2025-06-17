@@ -78,3 +78,6 @@ $RECYCLE.BIN/
 *.bak
 *.swp
 *~
+
+venv/
+.env
